@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSO QA — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;color:#e8edf5;font-family:'Poppins',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+body::before{content:'';position:fixed;top:50%;left:50%;transform:translate(-50%,-60%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(59,130,246,0.07) 0%,transparent 70%);pointer-events:none}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+.card{position:relative;z-index:1;width:100%;max-width:400px;padding:0 24px}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:40px}
+.brand-logo{width:32px;height:32px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.brand-name{font-size:13px;font-weight:600;color:rgba(232,237,245,0.5);letter-spacing:.02em}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:#fff;margin-bottom:6px;line-height:1.1}
+.subtitle{font-size:13px;color:rgba(232,237,245,0.35);margin-bottom:36px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(232,237,245,0.35);margin-bottom:7px}
+.field input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 14px;font-family:'Poppins',sans-serif;font-size:13px;color:#e8edf5;outline:none;transition:border-color .2s,background .2s}
+.field input:focus{border-color:rgba(59,130,246,0.6);background:rgba(59,130,246,0.05)}
+.field input::placeholder{color:rgba(232,237,245,0.2)}
+.btn-submit{width:100%;margin-top:8px;background:#3b82f6;border:none;border-radius:8px;padding:13px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;color:#fff;cursor:pointer;transition:background .18s,transform .12s;letter-spacing:.01em}
+.btn-submit:hover{background:#2563eb}
+.btn-submit:active{transform:scale(.99)}
+.btn-submit:disabled{background:rgba(59,130,246,0.35);cursor:default}
+.error-msg{display:none;margin-top:14px;background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);border-radius:7px;padding:10px 13px;font-size:12px;color:#f43f5e;text-align:center}
+.error-msg.show{display:block}
+.lock-icon{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:20px}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.shake{animation:shake .35s ease}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">
+    <div class="brand-logo">BVC</div>
+    <span class="brand-name">OSO QA Report</span>
+  </div>
+  <div class="lock-icon">🔒</div>
+  <h1>Sign in</h1>
+  <p class="subtitle">Enter your credentials to access the QA dashboard.</p>
+  <div class="field">
+    <label>Username</label>
+    <input type="text" id="username" placeholder="username" autocomplete="username" autofocus>
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="••••••••••" autocomplete="current-password">
+  </div>
+  <button class="btn-submit" id="btn-login">Sign in</button>
+  <div class="error-msg" id="error-msg">Incorrect username or password.</div>
+</div>
+<script>
+var HASH_USER='oso';
+var HASH_PASS='b822f1cd2dcfc685b47e83e3980289fd5d8e3ff3a82def24d7d1d68bb272eb32';
+if(sessionStorage.getItem('oso_qa_auth')==='1'){window.location.replace('dashboard.html');}
+async function hashStr(s){var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
+async function attemptLogin(){
+  var user=document.getElementById('username').value.trim();
+  var pass=document.getElementById('password').value;
+  var btn=document.getElementById('btn-login');
+  var err=document.getElementById('error-msg');
+  btn.disabled=true;btn.textContent='Signing in…';err.classList.remove('show');
+  var passHash=await hashStr(pass);
+  if(user===HASH_USER&&passHash===HASH_PASS){
+    sessionStorage.setItem('oso_qa_auth', 'granted');
+    window.location.replace('dashboard.html');
+  } else {
+    err.classList.add('show');
+    btn.disabled=false;btn.textContent='Sign in';
+    var c=document.querySelector('.card');
+    c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');
+    document.getElementById('password').value='';
+    document.getElementById('password').focus();
+  }
+}
+document.getElementById('btn-login').addEventListener('click',attemptLogin);
+document.addEventListener('keydown',function(e){if(e.key==='Enter')attemptLogin();});
+</script>
+</body>
+</html>
