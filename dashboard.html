@@ -384,13 +384,14 @@ tr.exp-row td{padding:0;border-bottom:1px solid var(--border2)}
       <div style="overflow-x:auto">
         <table>
           <thead><tr>
-            <th>Test ID</th>
-            <th>Suite</th>
-            <th>Category</th>
-            <th>Score</th>
-            <th>Closing</th>
-            <th>Missed Lead</th>
-            <th>Confidence</th>
+            <th style="width:30px;cursor:default"></th>
+            <th data-col="id">Test ID <span class="arr">&#8597;</span></th>
+            <th data-col="suite">Suite <span class="arr">&#8597;</span></th>
+            <th data-col="cat">Category <span class="arr">&#8597;</span></th>
+            <th data-col="score">Score <span class="arr">&#8597;</span></th>
+            <th data-col="closing">Closing <span class="arr">&#8597;</span></th>
+            <th data-col="missed">Missed Lead <span class="arr">&#8597;</span></th>
+            <th data-col="conf">Confidence <span class="arr">&#8597;</span></th>
           </tr></thead>
           <tbody id="conv-tbody"></tbody>
         </table>
@@ -629,6 +630,7 @@ document.getElementById('cat-search').addEventListener('input', function(e) {
 // ── CONVERSATION EXPLORER ─────────────────────────────────────────────────
 var activeF = 'all', convSearch = '', convPage = 0, expRow = null;
 var convSuites = {}, convCat = '';
+var convSort = { col: 'score', dir: -1 };
 var PAGE = 20;
 
 function filteredRows() {
@@ -659,6 +661,20 @@ function filteredRows() {
              r.transcript.some(function(t) { return t.text.toLowerCase().indexOf(q) >= 0; });
     });
   }
+  // Sort
+  data = data.slice().sort(function(a, b) {
+    var d = convSort.dir;
+    switch(convSort.col) {
+      case 'id':      return d * a.id.localeCompare(b.id);
+      case 'suite':   return d * a.suite.localeCompare(b.suite);
+      case 'cat':     return d * a.cat.localeCompare(b.cat);
+      case 'score':   return d * (a.score - b.score);
+      case 'closing': return d * (a.closing||'').localeCompare(b.closing||'');
+      case 'missed':  return d * ((a.missed?1:0) - (b.missed?1:0));
+      case 'conf':    return d * (a.conf||'').localeCompare(b.conf||'');
+      default:        return 0;
+    }
+  });
   return data;
 }
 
@@ -677,7 +693,9 @@ function renderConv() {
     var globalIdx = convPage * PAGE + i;
     var cls = sc(r.score);
     var tr = document.createElement('tr');
+    var isExp = expRow === globalIdx;
     tr.innerHTML =
+      '<td style="width:30px;text-align:center;color:var(--text-muted);font-size:11px;user-select:none">' + (isExp ? '&#9660;' : '&#9658;') + '</td>' +
       '<td class="m" style="color:var(--text)">' + esc(r.id) + '</td>' +
       '<td><span class="badge b-' + esc(r.suite) + '">' + esc(r.suite) + '</span></td>' +
       '<td>' + esc(r.cat) + '</td>' +
@@ -734,7 +752,7 @@ function renderConv() {
         '</div>'
       ) : '';
 
-      expTr.innerHTML = '<td colspan="7"><div class="exp-inner">' +
+      expTr.innerHTML = '<td colspan="8"><div class="exp-inner">' +
         '<div class="exp-dims">' + dimHtml + '</div>' +
         '<div class="transcript-wrap">' +
           '<div class="transcript-label">Full Conversation <span class="turn-count-badge">' + r.transcript.length + ' turns</span></div>' +
@@ -764,6 +782,22 @@ function goPg(dir) {
   convPage = Math.max(0, Math.min(pages - 1, convPage + dir));
   renderConv();
 }
+
+// Conv table sort headers
+document.querySelectorAll('#explorer th[data-col]').forEach(function(th) {
+  th.addEventListener('click', function() {
+    if (convSort.col === th.dataset.col) convSort.dir *= -1;
+    else { convSort.col = th.dataset.col; convSort.dir = th.dataset.col === 'score' ? -1 : 1; }
+    convPage = 0; expRow = null;
+    // Update arrow indicators
+    document.querySelectorAll('#explorer th[data-col]').forEach(function(t) {
+      t.classList.toggle('sa', t.dataset.col === convSort.col);
+      var arr = t.querySelector('.arr');
+      if (arr) arr.innerHTML = t.dataset.col === convSort.col ? (convSort.dir === -1 ? '&#8595;' : '&#8593;') : '&#8597;';
+    });
+    renderConv();
+  });
+});
 
 document.querySelectorAll('.ftab').forEach(function(btn) {
   btn.addEventListener('click', function() {
