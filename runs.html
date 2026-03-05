@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function() {
+  if (sessionStorage.getItem('oso_qa_auth') !== 'granted') {
+    document.documentElement.style.display = 'none';
+    var base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+    window.location.replace(base + 'index.html');
+  }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSO QA — Test Runs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#07090d;
+  --bg2:#0c0f16;
+  --bg3:#111620;
+  --surface:rgba(255,255,255,0.035);
+  --surface2:rgba(255,255,255,0.065);
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.13);
+  --blue:#3b82f6;
+  --blue-dim:rgba(59,130,246,0.12);
+  --green:#22c55e;
+  --green-dim:rgba(34,197,94,0.1);
+  --amber:#f59e0b;
+  --amber-dim:rgba(245,158,11,0.1);
+  --red:#f43f5e;
+  --red-dim:rgba(244,63,94,0.1);
+  --text:#e8edf5;
+  --text-dim:rgba(232,237,245,0.55);
+  --text-muted:rgba(232,237,245,0.28);
+  --sans:'Poppins',sans-serif;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Grid background */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,130,246,0.02) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;z-index:0;
+}
+/* Glow */
+body::after{
+  content:'';position:fixed;top:-100px;left:50%;transform:translateX(-50%);
+  width:900px;height:350px;
+  background:radial-gradient(ellipse,rgba(59,130,246,0.06) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,9,13,0.9);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  max-width:1380px;margin:0 auto;padding:0 28px;
+  display:flex;align-items:center;height:52px;gap:12px;
+}
+.nav-brand{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.nav-logo{
+  width:28px;height:28px;
+  background:linear-gradient(135deg,var(--blue),#1d4ed8);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#fff;
+}
+.nav-brand-text{font-size:12px;font-weight:600;color:var(--text-dim);letter-spacing:.02em}
+.nav-divider{width:1px;height:18px;background:var(--border2);flex-shrink:0}
+.nav-page{font-size:12px;font-weight:500;color:var(--text-muted)}
+.nav-signout{
+  margin-left:auto;
+  background:none;border:1px solid var(--border);border-radius:5px;
+  padding:4px 11px;font-family:var(--sans);font-size:11px;font-weight:500;
+  color:var(--text-muted);cursor:pointer;transition:all .15s;
+}
+.nav-signout:hover{border-color:var(--border2);color:var(--text-dim)}
+
+/* WRAP */
+.wrap{max-width:900px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
+
+/* HEADER */
+.header{padding:64px 0 48px}
+.run-label{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--blue-dim);border:1px solid rgba(59,130,246,0.2);
+  border-radius:20px;padding:3px 11px;
+  font-size:10px;font-weight:600;color:var(--blue);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;
+}
+.run-label::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--blue)}
+h1{
+  font-size:clamp(26px,4vw,40px);font-weight:800;
+  letter-spacing:-.025em;line-height:1.05;
+  color:var(--text);margin-bottom:10px;
+}
+h1 em{font-style:normal;color:var(--blue)}
+.subtitle{font-size:13px;color:var(--text-muted);max-width:480px;line-height:1.7}
+
+/* RUNS LIST */
+.runs-section{padding-bottom:80px}
+.runs-list{display:flex;flex-direction:column;gap:12px}
+
+.run-card{
+  display:flex;align-items:center;gap:20px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:22px 24px;
+  text-decoration:none;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+  opacity:0;
+  transform:translateY(12px);
+  animation:fadeUp .35s ease forwards;
+}
+.run-card::before{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;width:3px;
+  border-radius:14px 0 0 14px;
+  background:var(--blue);
+  opacity:0;
+  transition:opacity .2s;
+}
+.run-card:hover{
+  border-color:var(--border2);
+  background:var(--surface2);
+  transform:translateY(-2px);
+}
+.run-card:hover::before{opacity:1}
+
+@keyframes fadeUp{
+  to{opacity:1;transform:translateY(0)}
+}
+
+.run-num{
+  width:40px;height:40px;flex-shrink:0;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--text-dim);
+  letter-spacing:-.02em;
+}
+
+.run-info{flex:1;min-width:0}
+.run-title{
+  font-size:14px;font-weight:600;color:var(--text);
+  letter-spacing:-.01em;margin-bottom:4px;
+}
+.run-meta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.run-meta-item{
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;color:var(--text-muted);
+}
+.run-meta-item svg{opacity:.45;flex-shrink:0}
+
+.run-badges{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;align-items:center}
+.suite-badge{
+  display:inline-flex;align-items:center;
+  border-radius:4px;padding:2px 7px;
+  font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.04em;
+}
+.sb-baseline{background:var(--blue-dim);color:var(--blue)}
+.sb-advanced{background:rgba(167,139,250,0.1);color:#a78bfa}
+.sb-redteam{background:var(--red-dim);color:var(--red)}
+
+.run-score{
+  flex-shrink:0;text-align:right;
+}
+.score-val{
+  font-size:22px;font-weight:700;letter-spacing:-.03em;
+  line-height:1;margin-bottom:3px;
+}
+.score-val.amber{color:var(--amber)}
+.score-val.green{color:var(--green)}
+.score-val.red{color:var(--red)}
+.score-lbl{font-size:10px;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+
+.run-arrow{
+  flex-shrink:0;
+  color:var(--text-muted);
+  opacity:0;
+  transform:translateX(-6px);
+  transition:all .2s;
+}
+.run-card:hover .run-arrow{opacity:1;transform:translateX(0)}
+
+/* Empty state placeholder for future runs */
+.run-card.future{
+  opacity:.35;pointer-events:none;border-style:dashed;
+}
+.run-card.future .run-num{opacity:.4}
+
+/* Divider */
+.divider{
+  display:flex;align-items:center;gap:12px;
+  margin:32px 0 24px;
+}
+.divider-line{flex:1;height:1px;background:var(--border)}
+.divider-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="runs.html">
+      <div class="nav-logo">BVC</div>
+      <span class="nav-brand-text">OSO QA Report</span>
+    </a>
+    <div class="nav-divider"></div>
+    <span class="nav-page">Test Runs</span>
+    <button class="nav-signout" id="btn-signout">Sign out</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="header">
+    <div class="run-label">OSO Chatbot</div>
+    <h1>QA Test <em>Runs</em></h1>
+    <p class="subtitle">Select a test run to view its full dashboard — scores, dimension breakdowns, and conversation-level analysis.</p>
+  </div>
+
+  <div class="runs-section">
+    <div class="runs-list" id="runs-list">
+
+      <!-- RUN 1 -->
+      <a class="run-card" href="dashboard_20260304.html" style="animation-delay:.05s">
+        <div class="run-num">1</div>
+        <div class="run-info">
+          <div class="run-title">Run 1 — March 4, 2026</div>
+          <div class="run-meta">
+            <span class="run-meta-item">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              175 conversations
+            </span>
+            <span class="run-meta-item">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 3V2M11 3V2M2 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              2026-03-04 · 15:25 UTC
+            </span>
+          </div>
+        </div>
+        <div class="run-badges">
+          <span class="suite-badge sb-baseline">Baseline</span>
+          <span class="suite-badge sb-advanced">Advanced</span>
+          <span class="suite-badge sb-redteam">Red Team</span>
+        </div>
+        <div class="run-score">
+          <div class="score-val amber">3.42</div>
+          <div class="score-lbl">Overall</div>
+        </div>
+        <svg class="run-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+
+      <!-- Future runs will appear here -->
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-label">Upcoming</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <a class="run-card future" href="#" style="animation-delay:.1s">
+        <div class="run-num">2</div>
+        <div class="run-info">
+          <div class="run-title">Run 2 — pending</div>
+          <div class="run-meta">
+            <span class="run-meta-item">Next test run not yet completed</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Auth guard
+if(sessionStorage.getItem('oso_qa_auth')!=='granted'){
+  window.location.replace('index.html');
+}
+
+// Sign out
+document.getElementById('btn-signout').addEventListener('click',function(){
+  sessionStorage.removeItem('oso_qa_auth');
+  window.location.replace('index.html');
+});
+</script>
+</body>
+</html>
