@@ -44,17 +44,6 @@
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.6;overflow-x:hidden}
 
-body::before{
-  content:'';position:fixed;inset:0;
-  background-image:linear-gradient(rgba(59,130,246,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.02) 1px,transparent 1px);
-  background-size:48px 48px;pointer-events:none;z-index:0;
-}
-body::after{
-  content:'';position:fixed;top:-150px;left:50%;transform:translateX(-50%);
-  width:900px;height:350px;
-  background:radial-gradient(ellipse,rgba(59,130,246,0.055) 0%,transparent 70%);
-  pointer-events:none;z-index:0;
-}
 
 .wrap{max-width:1380px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
 
@@ -150,7 +139,7 @@ h2.sec-title{font-size:17px;font-weight:700;letter-spacing:-.02em;color:var(--te
 .hist-axis-lbl{flex:1;font-size:8px;color:var(--text-muted);text-align:center}
 
 /* TABLE */
-.tbl-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
+.tbl-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#0c0f16}
 .tbl-toolbar{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap}
 .srch{flex:1;min-width:180px;max-width:260px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 11px;color:var(--text);font-family:var(--sans);font-size:11px;outline:none;transition:border-color .15s}
 .srch:focus{border-color:rgba(59,130,246,0.45)}
@@ -158,15 +147,15 @@ h2.sec-title{font-size:17px;font-weight:700;letter-spacing:-.02em;color:var(--te
 .tbl-meta{margin-left:auto;font-size:10px;color:var(--text-muted)}
 
 table{width:100%;border-collapse:collapse}
-th{background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border);padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s}
+th{background:#0e1118;border-bottom:1px solid var(--border);padding:10px 14px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);cursor:pointer;user-select:none;white-space:nowrap;transition:color .15s}
 th:hover{color:var(--text-dim)}
 th.sa{color:var(--blue)}
 th .arr{opacity:.3;margin-left:2px;font-size:9px}
 th.sa .arr{opacity:1}
 tbody tr{border-bottom:1px solid rgba(255,255,255,0.035);transition:background .12s;cursor:pointer}
 tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:rgba(255,255,255,0.025)}
-tbody tr.sel{background:rgba(59,130,246,0.07)}
+tbody tr:hover{background:rgba(255,255,255,0.04)}
+tbody tr.sel{background:rgba(59,130,246,0.1)}
 td{padding:10px 14px;font-size:12px;color:var(--text-dim)}
 td.m{font-size:11px;font-weight:500}
 
@@ -196,7 +185,7 @@ td.m{font-size:11px;font-weight:500}
 
 /* EXPAND ROW */
 tr.exp-row td{padding:0;border-bottom:1px solid var(--border2)}
-.exp-inner{background:rgba(0,0,0,0.3);animation:expIn .18s ease}
+.exp-inner{background:#07090d;animation:expIn .18s ease}
 @keyframes expIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 
 /* Dimension chips */
@@ -294,7 +283,7 @@ tr.exp-row td{padding:0;border-bottom:1px solid var(--border2)}
 <!-- KPIs -->
 <div class="wrap">
   <section id="kpis">
-    <div class="sec-hdr"><span class="sec-num">01</span><h2 class="sec-title">KPIs</h2></div>
+    <div class="sec-hdr"><span class="sec-num">01</span><h2 class="sec-title">Executive KPIs</h2></div>
     <div class="kpi-grid" id="kpi-grid"></div>
   </section>
 </div>
