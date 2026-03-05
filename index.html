@@ -56,7 +56,7 @@ h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:#fff;margin-bottom
 <script>
 var HASH_USER='oso';
 var HASH_PASS='b822f1cd2dcfc685b47e83e3980289fd5d8e3ff3a82def24d7d1d68bb272eb32';
-if(sessionStorage.getItem('oso_qa_auth')==='1'){window.location.replace('dashboard.html');}
+if(sessionStorage.getItem('oso_qa_auth')==='1'){window.location.replace('runs.html');}
 async function hashStr(s){var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
 async function attemptLogin(){
   var user=document.getElementById('username').value.trim();
@@ -67,7 +67,7 @@ async function attemptLogin(){
   var passHash=await hashStr(pass);
   if(user===HASH_USER&&passHash===HASH_PASS){
     sessionStorage.setItem('oso_qa_auth', 'granted');
-    window.location.replace('dashboard.html');
+    window.location.replace('runs.html');
   } else {
     err.classList.add('show');
     btn.disabled=false;btn.textContent='Sign in';
